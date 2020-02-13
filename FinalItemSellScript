@@ -1,0 +1,130 @@
+#RequireAdmin
+#include <GUIConstantsEx.au3>
+#include <WinAPI.au3>
+#include <File.au3>
+
+$counter = 1
+While $counter <= 50
+	$file = "C:\Users\TPAdmin\Desktop\item.txt"
+
+	Run ("tp.net")
+	Run("D:\GBTestMikosch\bin\TPDotnet.Pos.StartPos.exe","")
+
+	sleep(4000)
+
+
+
+
+	;login system
+	Sleep(7000)
+	$hWnd = WinGetHandle("[X:0\Y:0\W:1024\H:768]")
+	;click login button
+
+	_WinAPI_SetFocus($hWnd)
+
+
+	MouseClick("left",918,169,1,10)
+	Sleep(3000)
+
+	Send("14")
+
+
+	Send("{TAB}")
+
+	Sleep(1000)
+
+	Send("14")
+
+
+	ControlClick("FormSignOn", "", "[NAME:SignOn]")
+
+	Sleep(4300)
+
+
+	 _FileCountLines($file)
+
+
+	For $i = 1 to $counter
+
+
+		$line = FileReadLine($file, $i)
+
+		if $line < 10 Then
+			ControlSend("", "", "", ""& $line)
+
+			Sleep(100)
+
+			;pressing enter
+			ControlClick("TP.net","","[NAME:_cmdDigitKey_13]")
+			Sleep(100)
+		EndIf
+
+	Next
+	FileClose($file)
+
+	;pressing Total
+	ControlClick("TP.net","Total","[NAME:_cmdFunctionKey_10]")
+
+	;pressing for Cancel Family card
+
+	Sleep(300)
+	ControlClick("FormSearchCustomer","Cancel","[NAME:cmdCancel]")
+
+
+
+	Sleep(300)
+
+
+	;Select Money
+
+	MouseClick("left",510,153,1,10)
+
+
+
+	  sleep(500)
+
+	; Check which window is active
+    Local $sText = WinGetTitle("[ACTIVE]")
+
+	;check if supervisor window is active
+
+	if $sText = "Supervisor" Then
+
+         sleep(200)
+		; supervisor credential input
+
+		Send("12")
+
+		Send("{TAB}")
+		Sleep(500)
+		Send("12")
+
+		Sleep(200)
+
+		; pressing ok button
+
+
+
+
+		ControlClick("Supervisor","OK", "[NAME:cmdOK]")
+
+
+    EndIf
+
+
+	Sleep(1000)
+	; click 3 rd button for log off
+	ControlClick("TP.net","","[NAME:_lblFunctionTab_2]")
+	;~ MouseClick("left",984,94,1,10)
+
+	;~ ;signoff button
+	WinActivate("TP.net","Sign-Off")
+	 MouseClick("left",916,162,1,10)
+	 ProcessClose("TP.net")
+
+
+	$counter = $counter + 1
+	sleep(1500)
+
+
+WEnd

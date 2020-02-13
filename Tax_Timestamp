@@ -1,0 +1,79 @@
+#include <File.au3>
+$xnConfirm = False
+$xnConfirmMsg = 0
+while $xnConfirm = False
+
+     $xnFile = FileOpenDialog("logfile.txt","C:\Users\TPAdmin\Desktop","All (*.*)") ;InputBox("File???", "Which file do you want to review?","C:\")
+   If FileExists($xnFile) = True Then
+            $xnConfirm = True
+         Else
+               $xnConfirmMsg = msgbox(1,"File Not Found...",$xnFile & " does not exist." & @crlf &  "Please select another file.")
+      EndIf
+WEnd
+
+$xnConfirm = False
+$xnConfirmMsg = 0
+while $xnConfirm = False
+    $xnTargetFile = FileOpenDialog("output.csv",$xnFile & "C:\Users\TPAdmin\Desktop","All (*.*)");"%userprofile%\Documents\output.csv"
+                  ;FileSaveDialog("Location to Save to...","%userprofile%","All (*.*)",16,"output - " & $xnFile & " - output.csv") ;
+         Consolewrite("Outputting to " & $xnTargetFile & @crlf)
+
+      if fileexists($xnTargetFile) then
+            $xnConfirmMsg = msgbox(4,"Overwrite?","Are you sure you want to overwrite " & @crlf & $xnTargetFile)
+
+               if $xnConfirmMsg = 6 Then
+                  $xnConfirm = True
+                  filedelete($xnTargetFile)
+               EndIf
+            Else
+
+               $xnConfirm = True
+
+      EndIf
+WEnd
+
+progresson("Line count","Verifying the number of lines in " & $xnFile)
+$xnFileLine = _FileCountLines($xnFile) ;InputBox("Number of lines","How many lines are in this document?",10000)
+consolewrite("Loading "& $xnFile & " with " & $xnFileLine & " total lines." &  @crlf)
+progressoff()
+
+local $hfl = FileOpen($xnFile,0)
+FileWrite($xnTargetFile,"")
+FileOpen($xnTargetFile, 1)
+
+$i = 1
+
+ProgressOn("Creating CSV","Extracting matching data.","",0,0,16)
+$xnTargetLine = 1
+
+
+
+While $i < $xnFileLine
+
+                  ;$xnCurrentLine = FileReadLine($xnFile,$i) ;Old Settings
+            $xnCurrentLine = FileReadLine($hfl,$i)
+            ;MsgBox(1,"",$xnCurrentLine)
+
+      Select
+         Case stringinstr($xnCurrentLine,"ReadAndFillTax.Execute|0|0||0||  Tax Calculation Time")
+            $xnTargetLine = stringmid($xnCurrentLine,145,stringlen($xnCurrentLine) - 145 + 1)
+			Local $sString = StringTrimRight(""& $xnTargetLine, 24)
+			;$xnTargetLine = stringmid($xnCurrentLine,132,17) & ","
+			FileWriteLine($xnTargetFile,""& $sString )
+         Case stringinstr($xnCurrentLine,"CalculateTax.Execute|0|0||0||    Tax Calculation Time")
+            $xnTargetLine = stringmid($xnCurrentLine,145,stringlen($xnCurrentLine) - 145 + 1)
+			Local $sString1 = StringTrimRight(""& $xnTargetLine, 24)
+			;$xnTargetLine = stringmid($xnCurrentLine,132,17) & ","
+			FileWriteLine($xnTargetFile,""& $sString1 )
+         Case stringinstr($xnCurrentLine,"Category:")
+            $xnTargetLine = $xnTargetLine  & stringmid($xnCurrentLine,11,stringlen($xnCurrentLine) - 11 + 1) & ","
+         Case stringinstr($xnCurrentLine,"Win32 ThreadId:")
+            $xnTargetLine = $xnTargetLine  & stringmid($xnCurrentLine,16,stringlen($xnCurrentLine) - 16 + 1) & @crlf
+               FileWriteLine($xnTargetFile,$xnTargetLine)
+         case Else
+               consolewrite("Nothing on line " & $i & @crlf)
+      EndSelect
+         $i = $i + 1
+                     ProgressSet(round($i/$xnFileLine * 100,1),$i & " of " & $xnFileLine & " lines examined." & @cr & "Thank you for your patience.")
+   WEnd
+ProgressOff()

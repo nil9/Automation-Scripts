@@ -1,0 +1,25 @@
+Private Sub CommandButton1_Click()
+lastrow = ThisWorkbook.Worksheets("Tabelle1").Cells(Rows.Count, 2).End(xlUp).Row
+insertValue = 1
+insertCount = 1
+startpos = 1
+
+For CurrentRow = 1 To lastrow
+
+    
+    If (insertCount = insertValue) Then
+    
+    ThisWorkbook.Worksheets("Tabelle1").Rows(CurrentRow + 1).Select
+    Selection.Insert Shift:=xlDown
+    Selection.Insert Shift:=xlDown
+    insertValue = insertValue + 1
+    insertCount = insertCount - insertValue - 1
+    End If
+    
+    insertCount = insertCount + 1
+     
+     Next
+     
+     
+
+End Sub

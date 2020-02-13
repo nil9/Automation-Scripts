@@ -1,0 +1,28 @@
+Private Sub Tax()
+lastrow = ThisWorkbook.Worksheets("Taxtime").Cells(Rows.Count, 1).End(xlUp).Row
+insertValue = 1
+insertCount = 0
+startpos = 1
+
+For CurrentRow = 1 To lastrow
+
+    
+    If (insertCount = insertValue) Then
+    
+    ThisWorkbook.Worksheets("Taxtime").Rows(CurrentRow + 1).Select
+    For rowshift = 0 To 2
+    Selection.Insert Shift:=xlDown
+    rowshift = rowshift + 1
+    Next
+   
+    insertValue = insertValue + 1
+    insertCount = insertCount - 2 * insertValue - 1
+    End If
+    
+    insertCount = insertCount + 1
+     
+     Next
+     
+     
+
+End Sub
